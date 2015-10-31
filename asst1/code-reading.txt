@@ -1,0 +1,41 @@
+1. What happens to a thread when it exits (i.e., calls thread_exit())? What about when it sleeps?
+The thread_exit() causes the current thread to exit.
+We clean up the parts of the thread structure we don't actually need to run right away. The rest has to wait until thread_destroy gets called from exorcise().
+
+2. What function(s) handle(s) a context switch?
+mi_switch()
+
+3. What does it mean for a thread to be in each of the possible thread states?
+	S_RUN - currently running thread
+	S_READY - ready to run, but it is not running currently
+	S_SLEEP - sleeping thread
+	S_ZOMB - Zombies are threads/processes that have exited but not been fully deleted yet
+
+4. What does it mean to turn interrupts off? How is this accomplished? Why is it important to turn off interrupts in the thread subsystem code?
+	It means that no thread can interrupt the current running thread.
+	It is accomplished by splhigh().
+	It is for one can block less important interrupts while processing them.
+
+5. What happens when a thread wakes up another thread? How does a sleeping thread get to run again?
+	It will wake another thread by calling thread_wakeup(). The sleeping thread will be deleted from sleeping thread list, and be made runnable.
+
+6. What function is responsible for choosing the next thread to run?
+	scheduler(), it returns the next thread to run.
+
+7. How does that function pick the next thread?
+	check the ready queue and return the first waiting thread. Calls cpu_idle() if there's nothing ready.
+
+8. What role does the hardware timer play in scheduling? What hardware independent function is called on a timer interrupt?
+	hardclock() is called from the timer interrupt HZ times a second. It calls thread_wakeup() and thread_yield() to schedule threads.
+
+9. Describe how thread_sleep() and thread_wakeup() are used to implement semaphores. What is the purpose of the argument passed to thread_sleep()?
+	When the semaphore need to wait for the siginal (sem->count==0), it goes to sleep. Until there is a signal (sem->count>0), it wakes up.
+	It is "sleep address". When thread_sleep() is called, yield the cpu to another process, and go to sleep, on "sleep address" ADDR.
+
+
+10. Why does the lock API in OS/161 provide lock_do_i_hold(), but not lock_get_holder()?
+	Even we can get the holder of the lock, we still can do nothing on it. The lock_do_i_hold() is to check the whether the lock is hold be current thread, and if it is, we can let the current thread release it. If it is not, we need to wait until the lock is released by other threads.
+
+
+
+

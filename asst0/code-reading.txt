@@ -1,0 +1,47 @@
+Question 1
+	$29
+
+Question 2
+	LAMEbus
+
+Question 3
+	splhigh()    sets spl to the highest value, disabling all interrupts.
+ 	spl0()       sets spl to 0, enabling all interrupts.
+
+Question 4
+	They are all very low-level functions, and depend on a specific hardware architecture. 
+	They should be separated because they all have different purposes, then must be divided into different functions. It's easier to maintain and debug. 
+
+Question 5
+	splx() return an int that stands for oldspl
+
+Question 6
+	The highest priority level is 15
+
+Question 7
+	hardclock is called from the timer interrupt 100 times a second
+
+Question 8
+	the largest pid is 2147483647
+	It can only suppot one process. Because in the thread file, one thread can only yield the cpu to another thread. There is no way to run them on different cpus. So it only allow one thread.
+
+Question 9
+	the system call number for reboot is 8
+	No. the number is stored to v0 by kernel instead of arguments given by user. 
+
+Question 10
+	They copy a block of memory of length LEN from user-level/kernel address to kernel/user-level address.
+	They prevent fatal kernel memory faults if invalid addresses are supplied by user-level code.
+	We may use these function for memory copy between kernel and user-level.
+
+Question 11
+	No.
+	The scheduler is to schedule threads. It must be initialized before the thread.
+
+Question 12
+	4 states: RUN, READY, SLEEP, and ZOMB
+	exorcise() and thread_shutdown()
+
+Question 13
+	thread_sleep()
+	It is used when you want to make a certain thread yield the cpu to another process, and go to sleep until wakeup() is called on the same address

@@ -1,0 +1,450 @@
+/* 
+ * stoplight.c
+ *
+ * 31-1-2003 : GWA : Stub functions created for CS161 Asst1.
+ *
+ * NB: You can use any synchronization primitives available to solve
+ * the stoplight problem in this file.
+ */
+
+
+/*
+ * 
+ * Includes
+ *
+ */
+
+#include <types.h>
+#include <lib.h>
+#include <test.h>
+#include <thread.h>
+#include <synch.h>
+
+
+/*
+ *
+ * Constants
+ *
+ */
+
+// priorities: 0 < 1 < 2 < 3 
+// when acquire for a lists of locks, 
+// always starts from highest priority lock in the list
+
+// when release, follow the actual path route.
+static struct lock *NW_0;
+static struct lock *NE_1;
+static struct lock *SE_2;
+static struct lock *SW_3;
+
+
+
+
+
+/*
+ * Number of cars created.
+ */
+
+#define NCARS 20
+
+
+/*
+ *
+ * Function Definitions
+ *
+ */
+
+
+/*
+ * gostraight()
+ *
+ * Arguments:
+ *      unsigned long cardirection: the direction from which the car
+ *              approaches the intersection.
+ *      unsigned long carnumber: the car id number for printing purposes.
+ *
+ * Returns:
+ *      nothing.
+ *
+ * Notes:
+ *      This function should implement passing straight through the
+ *      intersection from any direction.
+ *      Write and comment this function.
+ */
+
+static
+void
+gostraight(unsigned long cardirection,
+           unsigned long carnumber)
+{
+         // 0 - from N
+         // 1 - from E
+         // 2 - from S
+         // 3 - from W
+        switch(cardirection){
+            // from N, then need to acquire the NW_0, SW_3 lock
+            case 0:
+                // always start from the highest priority lock
+                lock_acquire(SW_3);
+                lock_acquire(NW_0);
+                kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+                lock_release(NW_0);
+                lock_release(SW_3);
+                kprintf("Car %lu go straight and leave the intersection from S\n", carnumber);
+                break;
+            
+            // from E, then need to acquire the NE_1, NW_0 lock
+            case 1:
+                // always start from the highest priority lock
+                lock_acquire(NE_1);
+                kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+                lock_acquire(NW_0);
+                lock_release(NE_1);
+                lock_release(NW_0);
+                kprintf("Car %lu go straight and leave the intersection from W\n", carnumber);
+                break;
+                
+
+            // from S, then need to acquire the SE_2, NE_1 lock
+            case 2:
+                // always start from the highest priority lock
+                lock_acquire(SE_2);
+                kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+                lock_acquire(NE_1);
+                lock_release(SE_2);
+                lock_release(NE_1);
+                kprintf("Car %lu go straight and leave the intersection from N\n", carnumber);
+                break;
+                
+
+            // from W, then need to acquire the SW_3, SE_2 lock
+            case 3:
+                // always start from the highest priority lock
+                lock_acquire(SW_3);
+                kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+                lock_acquire(SE_2);
+                lock_release(SW_3);
+                lock_release(SE_2);
+                kprintf("Car %lu go straight and leave the intersection from E\n", carnumber);
+                
+                
+        }
+}
+
+
+/*
+ * turnleft()
+ *
+ * Arguments:
+ *      unsigned long cardirection: the direction from which the car
+ *              approaches the intersection.
+ *      unsigned long carnumber: the car id number for printing purposes.
+ *
+ * Returns:
+ *      nothing.
+ *
+ * Notes:
+ *      This function should implement making a left turn through the 
+ *      intersection from any direction.
+ *      Write and comment this function.
+ */
+
+static
+void
+turnleft(unsigned long cardirection,
+         unsigned long carnumber)
+{
+        // 0 - from N
+         // 1 - from E
+         // 2 - from S
+         // 3 - from W
+        switch(cardirection){
+            // from N, then need to acquire the NW_0, SW_3, SE_2 lock
+            case 0:
+                // always start from the highest priority lock
+                lock_acquire(SW_3);
+                lock_acquire(SE_2);
+                lock_acquire(NW_0);
+                kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+                lock_release(NW_0);
+                lock_release(SW_3);
+                lock_release(SE_2);
+                kprintf("Car %lu go straight and leave the intersection from E\n", carnumber);
+                break;
+            
+            // from E, then need to acquire the NE_1, NW_0, SW_3 lock
+            case 1:
+                // always start from the highest priority lock
+                lock_acquire(SW_3);
+                lock_acquire(NE_1);
+                kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+                lock_acquire(NW_0);
+                lock_release(NE_1);
+                lock_release(NW_0);
+                lock_release(SW_3);
+                kprintf("Car %lu go straight and leave the intersection from S\n", carnumber);
+                break;
+                
+
+            // from S, then need to acquire the SE_2, NE_1, NW_0 lock
+            case 2:
+                // always start from the highest priority lock
+                lock_acquire(SE_2);
+                kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+                lock_acquire(NE_1);
+                lock_acquire(NW_0);
+                lock_release(SE_2);
+                lock_release(NE_1);
+                lock_release(NW_0);
+                kprintf("Car %lu go straight and leave the intersection from W\n", carnumber);
+                break;
+                
+
+            // from W, then need to acquire the SW_3, SE_2, NE_1 lock
+            case 3:
+                // always start from the highest priority lock
+                lock_acquire(SW_3);
+                kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+                lock_acquire(SE_2);
+                lock_acquire(NE_1);
+                lock_release(SW_3);
+                lock_release(SE_2);
+                lock_release(NE_1);
+                kprintf("Car %lu go straight and leave the intersection from N\n", carnumber);
+                
+                
+        }
+}
+
+
+/*
+ * turnright()
+ *
+ * Arguments:
+ *      unsigned long cardirection: the direction from which the car
+ *              approaches the intersection.
+ *      unsigned long carnumber: the car id number for printing purposes.
+ *
+ * Returns:
+ *      nothing.
+ *
+ * Notes:
+ *      This function should implement making a right turn through the 
+ *      intersection from any direction.
+ *      Write and comment this function.
+ */
+
+static
+void
+turnright(unsigned long cardirection,
+          unsigned long carnumber)
+{
+
+         // 0 - from N
+         // 1 - from E
+         // 2 - from S
+         // 3 - from W
+        switch(cardirection){
+            // from N, then need to acquire the NW_0 lock
+            case 0:
+                lock_acquire(NW_0);
+                kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+                lock_release(NW_0);
+                kprintf("Car %lu turn right and leave the intersection from W\n", carnumber);
+                break;
+            
+            // from E, then need to acquire the NE_1 lock
+            case 1:
+                lock_acquire(NE_1);
+                kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+                lock_release(NE_1);
+                kprintf("Car %lu turn right and leave the intersection from N\n", carnumber);
+                break;
+
+            // from S, then need to acquire the SE_2 lock
+            case 2:
+                lock_acquire(SE_2);
+                kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+                lock_release(SE_2);
+                kprintf("Car %lu turn right and leave the intersection from E\n", carnumber);
+                break;
+
+            // from W, then need to acquire the SW_3 lock
+            case 3:
+                lock_acquire(SW_3);
+                kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+                lock_release(SW_3);
+                kprintf("Car %lu turn right and leave the intersection from S\n", carnumber);
+                
+        }
+}
+
+
+/*
+ * approachintersection()
+ *
+ * Arguments: 
+ *      void * unusedpointer: currently unused.
+ *      unsigned long carnumber: holds car id number.
+ *
+ * Returns:
+ *      nothing.
+ *
+ * Notes:
+ *      Change this function as necessary to implement your solution. These
+ *      threads are created by createcars().  Each one must choose a direction
+ *      randomly, approach the intersection, choose a turn randomly, and then
+ *      complete that turn.  The code to choose a direction randomly is
+ *      provided, the rest is left to you to implement.  Making a turn
+ *      or going straight should be done by calling one of the functions
+ *      above.
+ */
+ 
+static
+void
+approachintersection(void * unusedpointer, unsigned long carnumber)
+{
+        int cardirection;
+
+        (void)unusedpointer;
+        /*
+         * cardirection is set randomly.
+         */
+
+         // 0 - from N
+         // 1 - from E
+         // 2 - from S
+         // 3 - from W
+        cardirection = random() % 4;
+        
+
+        // decide make a turn or go straight
+        int destination = random()%3;
+        //kprintf("The car %lu is going to ",carnumber);
+        
+        if(cardirection == 0){
+            switch(destination){
+                case 0:
+                    kprintf("The car %lu is approaching the intersection from N, and going to turn right\n",carnumber);
+                    turnright(cardirection,carnumber);
+                    break;
+                case 1:
+                    kprintf("The car %lu is approaching the intersection from N, and going to go straight\n",carnumber);
+                    gostraight(cardirection,carnumber);
+                    break;
+                case 2:
+                    kprintf("The car %lu is approaching the intersection from N, and going to turn left\n",carnumber);
+                    turnleft(cardirection,carnumber);        
+            }
+        }
+
+        if(cardirection == 1){
+            switch(destination){
+                case 0:
+                    kprintf("The car %lu is approaching the intersection from E, and going to turn right\n",carnumber);
+                    turnright(cardirection,carnumber);
+                    break;
+                case 1:
+                    kprintf("The car %lu is approaching the intersection from E, and going to go straight\n",carnumber);
+                    gostraight(cardirection,carnumber);
+                    break;
+                case 2:
+                    kprintf("The car %lu is approaching the intersection from E, and going to turn left\n",carnumber);
+                    turnleft(cardirection,carnumber);        
+            }
+        }
+        if(cardirection == 2){
+            switch(destination){
+                case 0:
+                    kprintf("The car %lu is approaching the intersection from S, and going to turn right\n",carnumber);
+                    turnright(cardirection,carnumber);
+                    break;
+                case 1:
+                    kprintf("The car %lu is approaching the intersection from S, and going to go straight\n",carnumber);
+                    gostraight(cardirection,carnumber);
+                    break;
+                case 2:
+                    kprintf("The car %lu is approaching the intersection from S, and going to turn left\n",carnumber);
+                    turnleft(cardirection,carnumber);        
+            }
+        }
+        if(cardirection == 3){
+            switch(destination){
+                case 0:
+                    kprintf("The car %lu is approaching the intersection from W, and going to turn right\n",carnumber);
+                    turnright(cardirection,carnumber);
+                    break;
+                case 1:
+                    kprintf("The car %lu is approaching the intersection from W, and going to go straight\n",carnumber);
+                    gostraight(cardirection,carnumber);
+                    break;
+                case 2:
+                    kprintf("The car %lu is approaching the intersection from W, and going to turn left\n",carnumber);
+                    turnleft(cardirection,carnumber);        
+            }
+        }
+
+
+
+       
+
+
+
+}
+
+
+/*
+ * createcars()
+ *
+ * Arguments:
+ *      int nargs: unused.
+ *      char ** args: unused.
+ *
+ * Returns:
+ *      0 on success.
+ *
+ * Notes:
+ *      Driver code to start up the approachintersection() threads.  You are
+ *      free to modiy this code as necessary for your solution.
+ */
+
+int
+createcars(int nargs, char** args)
+{
+        int index, error;
+
+        (void)nargs;
+        (void)args;
+
+        NW_0 = lock_create("NW");
+        NE_1 = lock_create("NE");
+        SE_2 = lock_create("SW");
+        SW_3 = lock_create("SE");
+
+        /*
+         * Start NCARS approachintersection() threads.
+         */
+
+        for (index = 0; index < NCARS; index++) {
+
+                error = thread_fork("approachintersection thread",
+                                    NULL,
+                                    index,
+                                    approachintersection,
+                                    NULL
+                                    );
+
+                /*
+                 * panic() on error.
+                 */
+
+                if (error) {
+                        
+                        panic("approachintersection: thread_fork failed: %s\n",
+                              strerror(error)
+                              );
+                }
+        }
+
+        return 0;
+}

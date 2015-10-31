@@ -1,0 +1,436 @@
+Index: os161-1.11/bin/cat/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/cat/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+12a13
+> 
+Index: os161-1.11/bin/cp/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/cp/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+11a12
+> 
+Index: os161-1.11/bin/false/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/false/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+10a11
+> 
+Index: os161-1.11/bin/ln/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/ln/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+13a14
+> 
+Index: os161-1.11/bin/ls/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/ls/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+17a18
+> 
+Index: os161-1.11/bin/mkdir/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/mkdir/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+13a14
+> 
+Index: os161-1.11/bin/mv/depend.mk
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/bin/mv/depend.mk,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+11a12
+> 
+Index: os161-1.11/kern/asst1/stoplight.c
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/kern/asst1/stoplight.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+20a21
+> #include <synch.h>
+28a30,43
+> // priorities: 0 < 1 < 2 < 3 
+> // when acquire for a lists of locks, 
+> // always starts from highest priority lock in the list
+> 
+> // when release, follow the actual path route.
+> static struct lock *NW_0;
+> static struct lock *NE_1;
+> static struct lock *SE_2;
+> static struct lock *SW_3;
+> 
+> 
+> 
+> 
+> 
+65,70c80,131
+<         /*
+<          * Avoid unused variable warnings.
+<          */
+<         
+<         (void) cardirection;
+<         (void) carnumber;
+---
+>          // 0 - from N
+>          // 1 - from E
+>          // 2 - from S
+>          // 3 - from W
+>         switch(cardirection){
+>             // from N, then need to acquire the NW_0, SW_3 lock
+>             case 0:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SW_3);
+>                 lock_acquire(NW_0);
+>                 kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+>                 lock_release(NW_0);
+>                 lock_release(SW_3);
+>                 kprintf("Car %lu go straight and leave the intersection from S\n", carnumber);
+>                 break;
+>             
+>             // from E, then need to acquire the NE_1, NW_0 lock
+>             case 1:
+>                 // always start from the highest priority lock
+>                 lock_acquire(NE_1);
+>                 kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+>                 lock_acquire(NW_0);
+>                 lock_release(NE_1);
+>                 lock_release(NW_0);
+>                 kprintf("Car %lu go straight and leave the intersection from W\n", carnumber);
+>                 break;
+>                 
+> 
+>             // from S, then need to acquire the SE_2, NE_1 lock
+>             case 2:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SE_2);
+>                 kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+>                 lock_acquire(NE_1);
+>                 lock_release(SE_2);
+>                 lock_release(NE_1);
+>                 kprintf("Car %lu go straight and leave the intersection from N\n", carnumber);
+>                 break;
+>                 
+> 
+>             // from W, then need to acquire the SW_3, SE_2 lock
+>             case 3:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SW_3);
+>                 kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+>                 lock_acquire(SE_2);
+>                 lock_release(SW_3);
+>                 lock_release(SE_2);
+>                 kprintf("Car %lu go straight and leave the intersection from E\n", carnumber);
+>                 
+>                 
+>         }
+96,101c157,216
+<         /*
+<          * Avoid unused variable warnings.
+<          */
+< 
+<         (void) cardirection;
+<         (void) carnumber;
+---
+>         // 0 - from N
+>          // 1 - from E
+>          // 2 - from S
+>          // 3 - from W
+>         switch(cardirection){
+>             // from N, then need to acquire the NW_0, SW_3, SE_2 lock
+>             case 0:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SW_3);
+>                 lock_acquire(SE_2);
+>                 lock_acquire(NW_0);
+>                 kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+>                 lock_release(NW_0);
+>                 lock_release(SW_3);
+>                 lock_release(SE_2);
+>                 kprintf("Car %lu go straight and leave the intersection from E\n", carnumber);
+>                 break;
+>             
+>             // from E, then need to acquire the NE_1, NW_0, SW_3 lock
+>             case 1:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SW_3);
+>                 lock_acquire(NE_1);
+>                 kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+>                 lock_acquire(NW_0);
+>                 lock_release(NE_1);
+>                 lock_release(NW_0);
+>                 lock_release(SW_3);
+>                 kprintf("Car %lu go straight and leave the intersection from S\n", carnumber);
+>                 break;
+>                 
+> 
+>             // from S, then need to acquire the SE_2, NE_1, NW_0 lock
+>             case 2:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SE_2);
+>                 kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+>                 lock_acquire(NE_1);
+>                 lock_acquire(NW_0);
+>                 lock_release(SE_2);
+>                 lock_release(NE_1);
+>                 lock_release(NW_0);
+>                 kprintf("Car %lu go straight and leave the intersection from W\n", carnumber);
+>                 break;
+>                 
+> 
+>             // from W, then need to acquire the SW_3, SE_2, NE_1 lock
+>             case 3:
+>                 // always start from the highest priority lock
+>                 lock_acquire(SW_3);
+>                 kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+>                 lock_acquire(SE_2);
+>                 lock_acquire(NE_1);
+>                 lock_release(SW_3);
+>                 lock_release(SE_2);
+>                 lock_release(NE_1);
+>                 kprintf("Car %lu go straight and leave the intersection from N\n", carnumber);
+>                 
+>                 
+>         }
+127,129d241
+<         /*
+<          * Avoid unused variable warnings.
+<          */
+131,132c243,279
+<         (void) cardirection;
+<         (void) carnumber;
+---
+>          // 0 - from N
+>          // 1 - from E
+>          // 2 - from S
+>          // 3 - from W
+>         switch(cardirection){
+>             // from N, then need to acquire the NW_0 lock
+>             case 0:
+>                 lock_acquire(NW_0);
+>                 kprintf("Car %lu Enter the intersection from NW\n", carnumber);
+>                 lock_release(NW_0);
+>                 kprintf("Car %lu turn right and leave the intersection from W\n", carnumber);
+>                 break;
+>             
+>             // from E, then need to acquire the NE_1 lock
+>             case 1:
+>                 lock_acquire(NE_1);
+>                 kprintf("Car %lu Enter the intersection from NE\n", carnumber);
+>                 lock_release(NE_1);
+>                 kprintf("Car %lu turn right and leave the intersection from N\n", carnumber);
+>                 break;
+> 
+>             // from S, then need to acquire the SE_2 lock
+>             case 2:
+>                 lock_acquire(SE_2);
+>                 kprintf("Car %lu Enter the intersection from SE\n", carnumber);
+>                 lock_release(SE_2);
+>                 kprintf("Car %lu turn right and leave the intersection from E\n", carnumber);
+>                 break;
+> 
+>             // from W, then need to acquire the SW_3 lock
+>             case 3:
+>                 lock_acquire(SW_3);
+>                 kprintf("Car %lu Enter the intersection from SW\n", carnumber);
+>                 lock_release(SW_3);
+>                 kprintf("Car %lu turn right and leave the intersection from S\n", carnumber);
+>                 
+>         }
+158,159c305
+< approachintersection(void * unusedpointer,
+<                      unsigned long carnumber)
+---
+> approachintersection(void * unusedpointer, unsigned long carnumber)
+163,172c309
+<         /*
+<          * Avoid unused variable and function warnings.
+<          */
+< 
+<         (void) unusedpointer;
+<         (void) carnumber;
+< 	(void) gostraight;
+< 	(void) turnleft;
+< 	(void) turnright;
+< 
+---
+>         (void)unusedpointer;
+176a314,317
+>          // 0 - from N
+>          // 1 - from E
+>          // 2 - from S
+>          // 3 - from W
+177a319,392
+>         
+> 
+>         // decide make a turn or go straight
+>         int destination = random()%3;
+>         //kprintf("The car %lu is going to ",carnumber);
+>         
+>         if(cardirection == 0){
+>             switch(destination){
+>                 case 0:
+>                     kprintf("The car %lu is approaching the intersection from N, and going to turn right\n",carnumber);
+>                     turnright(cardirection,carnumber);
+>                     break;
+>                 case 1:
+>                     kprintf("The car %lu is approaching the intersection from N, and going to go straight\n",carnumber);
+>                     gostraight(cardirection,carnumber);
+>                     break;
+>                 case 2:
+>                     kprintf("The car %lu is approaching the intersection from N, and going to turn left\n",carnumber);
+>                     turnleft(cardirection,carnumber);        
+>             }
+>         }
+> 
+>         if(cardirection == 1){
+>             switch(destination){
+>                 case 0:
+>                     kprintf("The car %lu is approaching the intersection from E, and going to turn right\n",carnumber);
+>                     turnright(cardirection,carnumber);
+>                     break;
+>                 case 1:
+>                     kprintf("The car %lu is approaching the intersection from E, and going to go straight\n",carnumber);
+>                     gostraight(cardirection,carnumber);
+>                     break;
+>                 case 2:
+>                     kprintf("The car %lu is approaching the intersection from E, and going to turn left\n",carnumber);
+>                     turnleft(cardirection,carnumber);        
+>             }
+>         }
+>         if(cardirection == 2){
+>             switch(destination){
+>                 case 0:
+>                     kprintf("The car %lu is approaching the intersection from S, and going to turn right\n",carnumber);
+>                     turnright(cardirection,carnumber);
+>                     break;
+>                 case 1:
+>                     kprintf("The car %lu is approaching the intersection from S, and going to go straight\n",carnumber);
+>                     gostraight(cardirection,carnumber);
+>                     break;
+>                 case 2:
+>                     kprintf("The car %lu is approaching the intersection from S, and going to turn left\n",carnumber);
+>                     turnleft(cardirection,carnumber);        
+>             }
+>         }
+>         if(cardirection == 3){
+>             switch(destination){
+>                 case 0:
+>                     kprintf("The car %lu is approaching the intersection from W, and going to turn right\n",carnumber);
+>                     turnright(cardirection,carnumber);
+>                     break;
+>                 case 1:
+>                     kprintf("The car %lu is approaching the intersection from W, and going to go straight\n",carnumber);
+>                     gostraight(cardirection,carnumber);
+>                     break;
+>                 case 2:
+>                     kprintf("The car %lu is approaching the intersection from W, and going to turn left\n",carnumber);
+>                     turnleft(cardirection,carnumber);        
+>             }
+>         }
+> 
+> 
+> 
+>        
+> 
+> 
+> 
+197,198c412
+< createcars(int nargs,
+<            char ** args)
+---
+> createcars(int nargs, char** args)
+202,204c416,417
+<         /*
+<          * Avoid unused variable warnings.
+<          */
+---
+>         (void)nargs;
+>         (void)args;
+206,207c419,422
+<         (void) nargs;
+<         (void) args;
+---
+>         NW_0 = lock_create("NW");
+>         NE_1 = lock_create("NE");
+>         SE_2 = lock_create("SW");
+>         SW_3 = lock_create("SE");
+Index: os161-1.11/kern/include/synch.h
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/kern/include/synch.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+52a53
+> 	struct thread *hold_thread;
+Index: os161-1.11/kern/thread/synch.c
+===================================================================
+RCS file: /home/xwang26/os161/cvsroot/os161-1.11/kern/thread/synch.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+115a116
+> 	lock->hold_thread = NULL;
+125a127
+> 	lock->hold_thread = NULL;
+136a139,156
+> 	int spl;
+> 	assert(lock!=NULL);
+> 
+> 	// May not block in an interrupt handler.
+> 	assert(in_interrupt == 0);
+> 	spl = splhigh();
+> 
+> 	// make sure the lock is not hold by current thread
+> 	assert(!lock_do_i_hold(lock));
+> 	
+> 	// if the lock is hold by other thread, make it sleep, until
+> 	// the lock is free
+> 	while(lock->hold_thread != NULL){
+> 		thread_sleep(lock);
+> 	}
+> 
+> 	lock->hold_thread = curthread;
+> 	splx(spl);
+138d157
+< 	(void)lock;  // suppress warning until code gets written
+143a163,164
+> 	int spl;
+> 
+144a166,174
+> 	assert(lock!=NULL);
+> 	// you can only release lock hold by current thread
+> 	assert(lock_do_i_hold(lock));
+> 
+> 	spl = splhigh();
+> 	lock->hold_thread = NULL;
+> 	thread_wakeup(lock);
+> 	splx(spl);
+> 
+146d175
+< 	(void)lock;  // suppress warning until code gets written
+152,156c181,185
+< 	// Write this
+< 
+< 	(void)lock;  // suppress warning until code gets written
+< 
+< 	return 1;    // dummy until code gets written
+---
+> 	assert(lock != NULL);
+> 	if(lock->hold_thread == curthread){
+> 		return 1;
+> 	}
+> 	return 0;    
